@@ -1,0 +1,39 @@
+---
+interface Props {
+  videoId: string;
+}
+
+const { videoId } = Astro.props;
+const videoUrl = `https://www.telemundo.com/shows/embedded-video/${videoId}?autoplay=true`;
+---
+
+<div class="video-player">
+  <iframe 
+    src={`/api/direct-proxy?url=${encodeURIComponent(videoUrl)}`}
+    width="100%" 
+    height="100%" 
+    frameborder="0" 
+    allowfullscreen 
+    allow="autoplay; encrypted-media"
+    loading="lazy">
+  </iframe>
+</div>
+
+<style>
+  .video-player {
+    position: relative;
+    padding-bottom: 56.25%; /* Proporción 16:9 */
+    height: 0;
+    overflow: hidden;
+    background-color: #000;
+    border-radius: 6px;
+  }
+  
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
