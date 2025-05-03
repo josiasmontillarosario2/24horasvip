@@ -1,0 +1,53 @@
+---
+import Layout from '../../layouts/EmbedLayout.astro';
+
+const { id } = Astro.params;
+const videoUrl = `https://www.telemundo.com/shows/embedded-video/${id}?autoplay=true`;
+---
+
+<Layout title={`Video ${id}`}>
+  <div class="video-wrapper">
+    <iframe 
+      src={`/api/full-page-proxy?url=${encodeURIComponent(videoUrl)}`}
+      frameborder="0" 
+      width="100%" 
+      height="100%" 
+      allowfullscreen 
+      allow="autoplay; encrypted-media">
+    </iframe>
+  </div>
+  
+  <script>
+    // Notificar a la página padre cuando el video esté listo
+    window.addEventListener('message', function(event) {
+      if (event.data === 'telemundo-video-ready') {
+        window.parent.postMessage('video-loaded', '*');
+      }
+    });
+    
+    // Intentar notificar después de un tiempo razonable
+    setTimeout(function() {
+      window.parent.postMessage('video-loaded', '*');
+    }, 5000);
+  </script>
+</Layout>
+
+<style>
+  .video-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  iframe {
+    border: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>

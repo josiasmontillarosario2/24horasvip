@@ -1,0 +1,77 @@
+---
+interface Props {
+  videoId: string;
+}
+
+const { videoId } = Astro.props;
+---
+
+<div class="video-container" data-video-id={videoId}>
+  <div class="loading-overlay">Cargando transmisión...</div>
+  <iframe 
+    src={`/embed/${videoId}`}
+    frameborder="0" 
+    allowfullscreen 
+    allow="autoplay; encrypted-media"
+    loading="lazy">
+  </iframe>
+</div>
+
+<style>
+  .video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* Proporción 16:9 */
+    height: 0;
+    overflow: hidden;
+    background-color: #000;
+    border-radius: 6px;
+  }
+  
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+  
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2;
+    transition: opacity 0.5s ease;
+  }
+  
+  .hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+
+<script define:vars={{ videoId }}>
+  // Función para ocultar el overlay de carga cuando el iframe haya cargado
+  window.addEventListener('message', function(event) {
+    // Verificamos si el mensaje viene de nuestro iframe de video
+    if (event.data === 'video-loaded') {
+      const container = document.querySelector(`[data-video-id="${videoId}"]`);
+      const loadingOverlay = container.querySelector('.loading-overlay');
+      loadingOverlay.classList.add('hidden');
+    }
+  });
+  
+  // Ocultamos el overlay después de un tiempo si no recibimos el mensaje
+  setTimeout(function() {
+    const container = document.querySelector(`[data-video-id="${videoId}"]`);
+    const loadingOverlay = container.querySelector('.loading-overlay');
+    loadingOverlay.classList.add('hidden');
+  }, 10000); // 10 segundos
+</script>
