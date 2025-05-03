@@ -1,0 +1,132 @@
+---
+interface Props {
+  videoId: string;
+}
+
+const { videoId } = Astro.props;
+---
+
+<div class="video-player" data-video-id={videoId}>
+  <div class="loading">Cargando transmisión...</div>
+  <video controls class="hidden video-element"></video>
+  <iframe class="hidden iframe-element" frameborder="0" allowfullscreen></iframe>
+</div>
+
+<script define:vars={{ videoId }}>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const playerContainer = document.querySelector(`[data-video-id="${videoId}"]`);
+    const loadingEl = playerContainer.querySelector('.loading');
+    const videoEl = playerContainer.querySelector('.video-element');
+    const iframeEl = playerContainer.querySelector('.iframe-element');
+    
+    try {
+      // Obtener la información del video a través de nuestro endpoint
+      const response = await fetch(`/api/video/${videoId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error al obtener información del video: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Verificar si tenemos una URL de stream
+      if (data.streamUrl) {
+        console.log("Usando stream directo:", data.streamUrl);
+        
+        // Verificar si el navegador soporta HLS nativamente
+        if (videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+          // Safari puede reproducir HLS nativamente
+          videoEl.src = data.streamUrl;
+          videoEl.classList.remove('hidden');
+          loadingEl.classList.add('hidden');
+        } 
+        // Usar hls.js para otros navegadores
+        else if (window.Hls && Hls.isSupported()) {
+          const hls = new Hls();
+          hls.loadSource(data.streamUrl);
+          hls.attachMedia(videoEl);
+          
+          hls.on(Hls.Events.MANIFEST_PARSED, function() {
+            videoEl.classList.remove('hidden');
+            loadingEl.classList.add('hidden');
+            videoEl.play();
+          });
+          
+          hls.on(Hls.Events.ERROR, function(event, data) {
+            console.error("HLS error:", data);
+            // Si hay un error con HLS, intentamos con el iframe como fallback
+            useIframeFallback();
+          });
+        } else {
+          // Si el navegador no soporta HLS ni tenemos hls.js disponible,
+          // usamos el iframe como fallback
+          useIframeFallback();
+        }
+      } 
+      // Si no tenemos URL de stream, usamos el iframe
+      else {
+        console.log("No se encontró stream directo, usando iframe");
+        useIframeFallback();
+      }
+      
+      function useIframeFallback() {
+        // Usar el iframe como fallback, apuntando a la URL original de Telemundo
+        iframeEl.src = `/api/proxy?url=${encodeURIComponent(`https://www.telemundo.com/shows/embedded-video/${videoId}`)}`;
+        iframeEl.classList.remove('hidden');
+        videoEl.classList.add('hidden');
+        loadingEl.classList.add('hidden');
+      }
+      
+    } catch (error) {
+      console.error('Error al cargar el video:', error);
+      loadingEl.textContent = `Error: ${error.message}`;
+      
+      // Como fallback final, intentamos cargar el iframe directamente
+      try {
+        iframeEl.src = `/api/proxy?url=${encodeURIComponent(`https://www.telemundo.com/shows/embedded-video/${videoId}`)}`;
+        iframeEl.classList.remove('hidden');
+        videoEl.classList.add('hidden');
+        loadingEl.classList.add('hidden');
+      } catch (iframeError) {
+        console.error('Error en fallback de iframe:', iframeError);
+        loadingEl.textContent = "No se pudo cargar el video. Por favor, intente más tarde.";
+      }
+    }
+  });
+</script>
+
+<style>
+  .video-player {
+    position: relative;
+    padding-bottom: 56.25%; /* Proporción 16:9 */
+    height: 0;
+    overflow: hidden;
+    background-color: #000;
+    border-radius: 6px;
+  }
+  
+  .video-element, .iframe-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+  
+  .hidden {
+    display: none;
+  }
+</style>

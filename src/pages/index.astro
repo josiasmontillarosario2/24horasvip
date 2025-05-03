@@ -1,11 +1,175 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
+import VideoPlayer from '../components/VideoPlayer.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+// IDs de los videos de Telemundo que quieres mostrar
+const videoId1 = "tmvo6296451";
+const videoId2 = "tmvo12424573";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="24 Horas VIP - Telemundo">
+  <main>
+    <header>
+      <h1>24 Horas VIP</h1>
+      <p class="description">Accede a las transmisiones en vivo desde cualquier ubicación</p>
+    </header>
+    
+    <section class="video-container">
+      <div class="video-wrapper">
+        <h2>Cámara 1</h2>
+        <VideoPlayer videoId={videoId1} />
+      </div>
+      <div class="video-wrapper">
+        <h2>Cámara 2</h2>
+        <VideoPlayer videoId={videoId2} />
+      </div>
+    </section>
+    
+    <section class="info-section">
+      <h2>¿Cómo funciona?</h2>
+      <p>
+        Esta aplicación utiliza el poder de Astro con renderizado del lado del servidor (SSR)
+        y se despliega en Vercel con servidores en Estados Unidos. El contenido se procesa 
+        a través de nuestros endpoints personalizados, permitiendo el acceso desde cualquier ubicación.
+      </p>
+      
+      <div class="technical-details">
+        <h3>Detalles técnicos:</h3>
+        <ul>
+          <li>Frontend con <strong>Astro</strong> para alto rendimiento</li>
+          <li>Alojamiento en <strong>Vercel</strong> con servidores en EE.UU.</li>
+          <li>Reproducción adaptativa con <strong>HLS.js</strong></li>
+          <li>Sistema de proxy inteligente con fallbacks automáticos</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  
+  <footer>
+    <p>
+      Desarrollado con fines de aprendizaje. Este sitio no está afiliado con Telemundo.
+      Todo el contenido pertenece a sus respectivos propietarios.
+    </p>
+  </footer>
 </Layout>
+
+<style>
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eaeaea;
+  }
+  
+  h1 {
+    font-size: 2.75rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(90deg, #0078d7, #00a1f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+  }
+  
+  .description {
+    color: #555;
+    font-size: 1.2rem;
+  }
+  
+  .video-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    margin-bottom: 3.5rem;
+  }
+  
+  .video-wrapper {
+    width: 100%;
+  }
+  
+  .video-wrapper h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.5rem;
+    color: #333;
+  }
+  
+  .info-section {
+    background-color: #f9f9f9;
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin: 2.5rem 0;
+  }
+  
+  .info-section h2 {
+    margin-bottom: 1.25rem;
+    color: #222;
+  }
+  
+  .info-section p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #444;
+  }
+  
+  .technical-details {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eaeaea;
+  }
+  
+  .technical-details h3 {
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+  
+  li {
+    margin-bottom: 0.75rem;
+    padding-left: 1.75rem;
+    position: relative;
+    color: #555;
+  }
+  
+  li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #0078d7;
+    font-weight: bold;
+  }
+  
+  strong {
+    color: #0078d7;
+    font-weight: 600;
+  }
+  
+  footer {
+    margin-top: 4rem;
+    padding: 2rem;
+    background-color: #f2f2f2;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  @media (min-width: 768px) {
+    .video-container {
+      flex-direction: row;
+    }
+    
+    .video-wrapper {
+      width: 50%;
+    }
+  }
+</style>
