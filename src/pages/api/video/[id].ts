@@ -15,7 +15,7 @@ export const GET: APIRoute = async ({ params, request }) => {
     }
     
     // Usar la URL correcta de embedded-video en lugar de la API
-    const videoUrl = `https://www.telemundo.com/shows/embedded-video/${videoId}`;
+    const videoUrl = `https://www.telemundo.com/shows/embedded-video/${videoId}?autoplay=true`;
     
     // Hacer solicitud para obtener el HTML de la página
     const response = await fetch(videoUrl, {
